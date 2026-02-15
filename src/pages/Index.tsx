@@ -104,64 +104,28 @@ const Index = () => {
 
       <main className="mx-auto max-w-5xl w-full px-4 py-8 flex-1">
         {/* Category totals + Monthly spend on one row */}
-        {categoryTotals.length > 0 && (
-          <div className="mb-6 grid items-center gap-3" style={{ gridTemplateColumns: `repeat(${categoryTotals.length + (categoryTotals.length > 1 ? 2 : 1)}, 1fr)` }}>
-            {categoryTotals.map(({ category, total }) => (
-              <Card
-                key={category}
-                className="p-4 text-center cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setCategoryFilter(prev => prev === category ? null : category)}
-              >
-                <Badge variant="secondary" className={`text-[10px] mb-2 ${CATEGORY_COLORS[category]}`}>
-                  {category}
-                </Badge>
-                <p className="text-lg font-bold text-foreground">
-                  {symbol}{total.toFixed(2)}
-                </p>
-              </Card>
-            ))}
-            {categoryTotals.length > 1 && (
-              <>
-                <span className="text-xl font-bold text-muted-foreground text-center">=</span>
-                <Card className="p-4 text-center">
-                  <p className="text-[10px] mb-2 text-muted-foreground font-semibold">Monthly Spend</p>
-                  <p className="text-lg font-bold text-foreground">
-                    {symbol}{totalMonthlySpend.toFixed(2)}
-                  </p>
-                </Card>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Single category or no categories: show monthly spend card standalone */}
-        {categoryTotals.length <= 1 && (
-          <div className="mb-6 grid items-center gap-3" style={{ gridTemplateColumns: `repeat(${categoryTotals.length > 0 ? 3 : 1}, 1fr)` }}>
-            {categoryTotals.map(({ category, total }) => (
-              <Card
-                key={category}
-                className="p-4 text-center cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setCategoryFilter(prev => prev === category ? null : category)}
-              >
-                <Badge variant="secondary" className={`text-[10px] mb-2 ${CATEGORY_COLORS[category]}`}>
-                  {category}
-                </Badge>
-                <p className="text-lg font-bold text-foreground">
-                  {symbol}{total.toFixed(2)}
-                </p>
-              </Card>
-            ))}
-            {categoryTotals.length > 0 && (
-              <span className="text-xl font-bold text-muted-foreground text-center">=</span>
-            )}
-            <Card className="p-4 text-center">
-              <p className="text-[10px] mb-2 text-muted-foreground font-semibold">Monthly Spend</p>
+        <div className="mb-6 grid items-center gap-3" style={{ gridTemplateColumns: `repeat(${categoryTotals.length + 1}, 1fr)` }}>
+          {categoryTotals.map(({ category, total }) => (
+            <Card
+              key={category}
+              className="p-4 text-center cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setCategoryFilter(prev => prev === category ? null : category)}
+            >
+              <Badge variant="secondary" className={`text-[10px] mb-2 ${CATEGORY_COLORS[category]}`}>
+                {category}
+              </Badge>
               <p className="text-lg font-bold text-foreground">
-                {symbol}{totalMonthlySpend.toFixed(2)}
+                {symbol}{total.toFixed(2)}
               </p>
             </Card>
-          </div>
-        )}
+          ))}
+          <Card className="p-4 text-center">
+            <p className="text-[10px] mb-2 text-muted-foreground font-semibold">Monthly Spend</p>
+            <p className="text-lg font-bold text-foreground">
+              {symbol}{totalMonthlySpend.toFixed(2)}
+            </p>
+          </Card>
+        </div>
 
         {/* Active category filter indicator */}
         {categoryFilter && (

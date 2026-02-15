@@ -76,27 +76,6 @@ function SubscriptionForm({ initial, globalCurrency, onSave, onCancel }: SubForm
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Zoom Pro" required />
       </div>
 
-      {/* Logo preset picker */}
-      <div className="space-y-2">
-        <Label>Logo (optional preset)</Label>
-        <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
-          {PRESET_LOGOS.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => { setLogo(p.key); setName((prev) => prev || p.name); }}
-              className={`flex h-11 w-11 items-center justify-center rounded-xl text-xs font-bold text-white transition-all ${
-                logo === p.key ? "ring-2 ring-primary ring-offset-2" : "opacity-70 hover:opacity-100"
-              }`}
-              style={{ backgroundColor: `hsl(${p.color})` }}
-              title={p.name}
-            >
-              {p.initials}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Billing cycle */}
       <div className="flex items-center gap-3">
         <Label>Billing</Label>
@@ -138,14 +117,17 @@ function SubscriptionForm({ initial, globalCurrency, onSave, onCancel }: SubForm
           </Select>
         </div>
 
-        <a
-          href="https://www.xe.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-        >
-          Check rates on xe.com <ExternalLink className="h-3 w-3" />
-        </a>
+        <p className="text-xs text-muted-foreground">
+          For subscriptions you pay for in another currency, please add the approximate local currency amount after conversion. To know the current exchange rate, check{" "}
+          <a
+            href="https://www.xe.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            xe.com
+          </a>
+        </p>
       </div>
 
       {/* Exchange rate */}
