@@ -32,15 +32,27 @@ export function useSubscriptions() {
   }, [globalCurrency]);
 
   const addSubscription = useCallback((sub: Subscription) => {
-    setSubscriptions((prev) => [...prev, sub]);
+    setSubscriptions((prev) => {
+      const next = [...prev, sub];
+      saveSubs(next);
+      return next;
+    });
   }, []);
 
   const updateSubscription = useCallback((sub: Subscription) => {
-    setSubscriptions((prev) => prev.map((s) => (s.id === sub.id ? sub : s)));
+    setSubscriptions((prev) => {
+      const next = prev.map((s) => (s.id === sub.id ? sub : s));
+      saveSubs(next);
+      return next;
+    });
   }, []);
 
   const deleteSubscription = useCallback((id: string) => {
-    setSubscriptions((prev) => prev.filter((s) => s.id !== id));
+    setSubscriptions((prev) => {
+      const next = prev.filter((s) => s.id !== id);
+      saveSubs(next);
+      return next;
+    });
   }, []);
 
   const toggleActive = useCallback((id: string) => {
