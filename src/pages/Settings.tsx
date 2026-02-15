@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useSubscriptions } from "@/hooks/use-subscriptions";
 import { CATEGORIES, CATEGORY_COLORS, type Category, type Subscription } from "@/lib/types";
 import { CURRENCIES, getCurrencySymbol } from "@/lib/currencies";
-import { PRESET_LOGOS, getPresetLogo } from "@/lib/presets";
+import { PRESET_LOGOS } from "@/lib/presets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -264,11 +264,9 @@ const Settings = () => {
     setEditing(null);
   };
 
-  const filteredSubs = subscriptions.filter((sub) => {
-    const preset = getPresetLogo(sub.logo);
-    const displayName = preset?.name ?? sub.name;
-    return displayName.toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredSubs = subscriptions.filter((sub) =>
+    sub.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -311,30 +309,15 @@ const Settings = () => {
             ) : (
               <div className="space-y-3">
                 {filteredSubs.map((sub) => {
-                  const preset = getPresetLogo(sub.logo);
                   return (
                     <div
                       key={sub.id}
                       className="flex items-center gap-4 rounded-xl border bg-card p-4"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">
-                        {preset ? (
-                          <div
-                            className="flex h-full w-full items-center justify-center rounded-lg text-xs font-bold text-white"
-                            style={{ backgroundColor: `hsl(${preset.color})` }}
-                          >
-                            {preset.initials}
-                          </div>
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted text-sm font-bold text-muted-foreground">
-                            {sub.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
 
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm text-card-foreground truncate">
-                          {preset?.name ?? sub.name}
+                          {sub.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {getCurrencySymbol(sub.currency)}{sub.cost.toFixed(2)}

@@ -1,4 +1,4 @@
-import { getPresetLogo } from "@/lib/presets";
+
 import { getCurrencySymbol } from "@/lib/currencies";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -19,31 +19,16 @@ export function SubscriptionCard({
   onToggle,
   onCategoryClick,
 }: SubscriptionCardProps) {
-  const preset = getPresetLogo(subscription.logo);
+  
   const symbol = getCurrencySymbol(globalCurrency);
   const categoryColor = CATEGORY_COLORS[subscription.category];
 
   return (
     <div className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md">
-      {/* Logo */}
-      <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl">
-        {preset ? (
-          <div
-            className="flex h-full w-full items-center justify-center rounded-2xl text-xl font-bold text-white"
-            style={{ backgroundColor: `hsl(${preset.color})` }}
-          >
-            {preset.initials}
-          </div>
-        ) : (
-          <div className="flex h-full w-full items-center justify-center rounded-2xl bg-muted text-xl font-bold text-muted-foreground">
-            {subscription.name.charAt(0).toUpperCase()}
-          </div>
-        )}
-      </div>
 
       {/* Name */}
       <h3 className="text-sm font-semibold text-card-foreground">
-        {preset?.name ?? subscription.name}
+        {subscription.name}
       </h3>
 
       {/* Category - clickable for filtering */}
