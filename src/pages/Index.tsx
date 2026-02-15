@@ -97,29 +97,41 @@ const Index = () => {
 
       <main className="mx-auto max-w-5xl w-full px-4 py-8 flex-1">
         {/* Category breakdown + Monthly total */}
-        <div className="mb-6 grid grid-cols-[1fr_auto] gap-4">
+        <div className="mb-6 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
           <Card className="p-4">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1">
-              {CATEGORIES.map((cat) => {
-                const total = subscriptions
-                  .filter((s) => s.active && s.category === cat)
-                  .reduce((sum, s) => sum + getMonthlyCost(s), 0);
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_1px_1fr] gap-x-0 gap-y-0">
+              {(() => {
+                const half = Math.ceil(CATEGORIES.length / 2);
+                const left = CATEGORIES.slice(0, half);
+                const right = CATEGORIES.slice(half);
+                const renderItem = (cat: Category) => {
+                  const total = subscriptions
+                    .filter((s) => s.active && s.category === cat)
+                    .reduce((sum, s) => sum + getMonthlyCost(s), 0);
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      className="flex items-center justify-between py-1 px-2 rounded hover:bg-muted transition-colors text-left"
+                      onClick={() => setCategoryFilterToggle(cat)}
+                    >
+                      <Badge variant="secondary" className={`text-[10px] ${CATEGORY_COLORS[cat]}`}>
+                        {cat}
+                      </Badge>
+                      <span className="text-sm font-semibold text-foreground ml-2">
+                        {symbol}{total.toFixed(2)}
+                      </span>
+                    </button>
+                  );
+                };
                 return (
-                  <button
-                    key={cat}
-                    type="button"
-                    className="flex items-center justify-between py-1 px-2 rounded hover:bg-muted transition-colors text-left"
-                    onClick={() => setCategoryFilterToggle(cat)}
-                  >
-                    <Badge variant="secondary" className={`text-[10px] ${CATEGORY_COLORS[cat]}`}>
-                      {cat}
-                    </Badge>
-                    <span className="text-sm font-semibold text-foreground ml-3">
-                      {symbol}{total.toFixed(2)}
-                    </span>
-                  </button>
+                  <>
+                    <div className="flex flex-col">{left.map(renderItem)}</div>
+                    <div className="hidden sm:block bg-border w-px mx-3 self-stretch" />
+                    <div className="flex flex-col">{right.map(renderItem)}</div>
+                  </>
                 );
-              })}
+              })()}
             </div>
           </Card>
           <Card className="p-4 flex flex-col items-center justify-center min-w-[140px]">
