@@ -39,13 +39,6 @@ const Index = () => {
     a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
   );
 
-  // Category totals for active subs
-  const categoryTotals = CATEGORIES.map((cat) => {
-    const total = subscriptions
-      .filter((s) => s.active && s.category === cat)
-      .reduce((sum, s) => sum + getMonthlyCost(s), 0);
-    return { category: cat, total };
-  }).filter((c) => c.total > 0);
 
   const exportCSV = () => {
     const headers = ["Name", "Category", "Billing Cycle", "Cost", "Currency", "Active", "Monthly Cost (" + globalCurrency + ")"];
@@ -103,25 +96,35 @@ const Index = () => {
       </header>
 
       <main className="mx-auto max-w-5xl w-full px-4 py-8 flex-1">
-        {/* Category totals + Monthly spend on one row */}
-        <div className="mb-6 grid items-center gap-3" style={{ gridTemplateColumns: `repeat(${categoryTotals.length + 1}, 1fr)` }}>
-          {categoryTotals.map(({ category, total }) => (
-            <Card
-              key={category}
-              className="p-4 text-center cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => setCategoryFilter(prev => prev === category ? null : category)}
-            >
-              <Badge variant="secondary" className={`text-[10px] mb-2 ${CATEGORY_COLORS[category]}`}>
-                {category}
-              </Badge>
-              <p className="text-lg font-bold text-foreground">
-                {symbol}{total.toFixed(2)}
-              </p>
-            </Card>
-          ))}
-          <Card className="p-4 text-center">
+        {/* Category breakdown + Monthly total */}
+        <div className="mb-6 grid grid-cols-[1fr_auto] gap-4">
+          <Card className="p-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+              {CATEGORIES.map((cat) => {
+                const total = subscriptions
+                  .filter((s) => s.active && s.category === cat)
+                  .reduce((sum, s) => sum + getMonthlyCost(s), 0);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    className="flex items-center justify-between py-1 px-2 rounded hover:bg-muted transition-colors text-left"
+                    onClick={() => setCategoryFilterToggle(cat)}
+                  >
+                    <Badge variant="secondary" className={`text-[10px] ${CATEGORY_COLORS[cat]}`}>
+                      {cat}
+                    </Badge>
+                    <span className="text-sm font-semibold text-foreground ml-3">
+                      {symbol}{total.toFixed(2)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+          <Card className="p-4 flex flex-col items-center justify-center min-w-[140px]">
             <p className="text-[10px] mb-2 text-muted-foreground font-semibold">Monthly Spend</p>
-            <p className="text-lg font-bold text-foreground">
+            <p className="text-2xl font-bold text-foreground">
               {symbol}{totalMonthlySpend.toFixed(2)}
             </p>
           </Card>
