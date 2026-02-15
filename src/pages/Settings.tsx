@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useSubscriptions } from "@/hooks/use-subscriptions";
 import { CATEGORIES, CATEGORY_COLORS, type Category, type Subscription } from "@/lib/types";
 import { CURRENCIES, getCurrencySymbol } from "@/lib/currencies";
@@ -16,13 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { ArrowLeft, Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
 
 function generateId() {
@@ -49,30 +42,19 @@ function SubscriptionForm({ initial, globalCurrency, onSave, onCancel }: SubForm
   const [exchangeRate, setExchangeRate] = useState(initial?.exchangeRate?.toString() ?? "");
   const [exchangeFrom, setExchangeFrom] = useState(initial?.exchangeFrom ?? currency);
   const [exchangeTo, setExchangeTo] = useState(initial?.exchangeTo ?? globalCurrency);
-  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
   const needsExchange = currency !== globalCurrency;
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setCustomLogo(result);
-      setLogo(result);
-    };
-    reader.readAsDataURL(file);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !cost || !logo) return;
+    if (!name || !cost) return;
+
+    const finalLogo = logo || name.charAt(0).toUpperCase();
 
     const sub: Subscription = {
       id: initial?.id ?? generateId(),
       name,
-      logo,
+      logo: finalLogo,
       billingCycle,
       cost: parseFloat(cost),
       currency,
@@ -94,15 +76,15 @@ function SubscriptionForm({ initial, globalCurrency, onSave, onCancel }: SubForm
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Zoom Pro" required />
       </div>
 
-      {/* Logo */}
+      {/* Logo preset picker */}
       <div className="space-y-2">
-        <Label>Logo</Label>
+        <Label>Logo (optional preset)</Label>
         <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
           {PRESET_LOGOS.map((p) => (
             <button
               key={p.key}
               type="button"
-              onClick={() => { setLogo(p.key); setCustomLogo(null); setName((prev) => prev || p.name); }}
+              onClick={() => { setLogo(p.key); setName((prev) => prev || p.name); }}
               className={`flex h-11 w-11 items-center justify-center rounded-xl text-xs font-bold text-white transition-all ${
                 logo === p.key ? "ring-2 ring-primary ring-offset-2" : "opacity-70 hover:opacity-100"
               }`}
@@ -113,15 +95,6 @@ function SubscriptionForm({ initial, globalCurrency, onSave, onCancel }: SubForm
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="custom-logo" className="cursor-pointer text-xs text-primary hover:underline">
-            Or upload custom logo
-          </Label>
-          <input id="custom-logo" type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-        </div>
-        {customLogo && (
-          <img src={customLogo} alt="Custom" className="h-12 w-12 rounded-xl object-cover" />
-        )}
       </div>
 
       {/* Billing cycle */}
@@ -165,7 +138,6 @@ function SubscriptionForm({ initial, globalCurrency, onSave, onCancel }: SubForm
           </Select>
         </div>
 
-        {/* XE link */}
         <a
           href="https://www.xe.com/"
           target="_blank"
@@ -176,7 +148,7 @@ function SubscriptionForm({ initial, globalCurrency, onSave, onCancel }: SubForm
         </a>
       </div>
 
-      {/* Exchange rate (only when currencies differ) */}
+      {/* Exchange rate */}
       {needsExchange && (
         <div className="space-y-1.5 rounded-lg border bg-muted/50 p-3">
           <Label className="text-xs text-muted-foreground">Exchange Rate</Label>
@@ -261,8 +233,15 @@ const Settings = () => {
     deleteSubscription,
   } = useSubscriptions();
 
+  const [searchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Subscription | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get("new") === "true") {
+      setShowForm(true);
+    }
+  }, [searchParams]);
 
   const handleSave = (sub: Subscription) => {
     if (editing) {
@@ -286,7 +265,7 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
+      <header className="border-b bg-card">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4">
           <Button variant="ghost" size="icon" asChild>
             <Link to="/">
@@ -321,7 +300,6 @@ const Settings = () => {
                       key={sub.id}
                       className="flex items-center gap-4 rounded-xl border bg-card p-4"
                     >
-                      {/* Mini logo */}
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">
                         {preset ? (
                           <div
