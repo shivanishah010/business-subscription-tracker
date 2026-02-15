@@ -5,6 +5,8 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // This tells Vite to prefix all file paths with your subfolder name
+  base: mode === "production" ? "/subscription-tracker/" : "/",
   server: {
     host: "::",
     port: 8080,
