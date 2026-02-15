@@ -2,13 +2,14 @@ import { getPresetLogo } from "@/lib/presets";
 import { getCurrencySymbol } from "@/lib/currencies";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { CATEGORY_COLORS, type Subscription } from "@/lib/types";
+import { CATEGORY_COLORS, type Category, type Subscription } from "@/lib/types";
 
 interface SubscriptionCardProps {
   subscription: Subscription;
   monthlyCost: number;
   globalCurrency: string;
   onToggle: (id: string) => void;
+  onCategoryClick?: (category: Category) => void;
 }
 
 export function SubscriptionCard({
@@ -16,6 +17,7 @@ export function SubscriptionCard({
   monthlyCost,
   globalCurrency,
   onToggle,
+  onCategoryClick,
 }: SubscriptionCardProps) {
   const preset = getPresetLogo(subscription.logo);
   const isCustomLogo = !preset && subscription.logo.startsWith("data:");
@@ -51,10 +53,12 @@ export function SubscriptionCard({
         {preset?.name ?? subscription.name}
       </h3>
 
-      {/* Category */}
-      <Badge variant="secondary" className={`text-[10px] ${categoryColor}`}>
-        {subscription.category}
-      </Badge>
+      {/* Category - clickable for filtering */}
+      <button type="button" onClick={() => onCategoryClick?.(subscription.category)}>
+        <Badge variant="secondary" className={`text-[10px] cursor-pointer ${categoryColor}`}>
+          {subscription.category}
+        </Badge>
+      </button>
 
       {/* Cost */}
       <p className="text-lg font-bold text-foreground">
@@ -70,10 +74,11 @@ export function SubscriptionCard({
         </span>
       )}
 
-      {/* Toggle */}
+      {/* Toggle - 15% smaller */}
       <Switch
         checked={subscription.active}
         onCheckedChange={() => onToggle(subscription.id)}
+        className="scale-[0.85]"
       />
     </div>
   );
