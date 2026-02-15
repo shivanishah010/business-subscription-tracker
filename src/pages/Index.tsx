@@ -33,6 +33,11 @@ const Index = () => {
     ? subscriptions.filter((s) => s.category === categoryFilter)
     : subscriptions;
 
+  // Sort alphabetically
+  const sortedSubs = [...filteredSubs].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+  );
+
   // Category totals for active subs
   const categoryTotals = CATEGORIES.map((cat) => {
     const total = subscriptions
@@ -97,18 +102,9 @@ const Index = () => {
       </header>
 
       <main className="mx-auto max-w-5xl w-full px-4 py-8 flex-1">
-        {/* Monthly spend card */}
-        <Card className="mb-6 p-6 text-center">
-          <p className="text-sm text-muted-foreground">Monthly Spend</p>
-          <p className="text-4xl font-bold text-foreground">
-            {symbol}
-            {totalMonthlySpend.toFixed(2)}
-          </p>
-        </Card>
-
-        {/* Category total cards */}
+        {/* Category totals + Monthly spend on one row */}
         {categoryTotals.length > 0 && (
-          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="mb-6 flex flex-wrap items-center gap-3">
             {categoryTotals.map(({ category, total }) => (
               <Card key={category} className="p-4 text-center">
                 <Badge variant="secondary" className={`text-[10px] mb-2 ${CATEGORY_COLORS[category]}`}>
@@ -119,7 +115,28 @@ const Index = () => {
                 </p>
               </Card>
             ))}
+            {categoryTotals.length > 1 && (
+              <>
+                <span className="text-xl font-bold text-muted-foreground">=</span>
+                <Card className="p-4 text-center">
+                  <p className="text-[10px] mb-2 text-muted-foreground font-semibold">Monthly Spend</p>
+                  <p className="text-lg font-bold text-foreground">
+                    {symbol}{totalMonthlySpend.toFixed(2)}
+                  </p>
+                </Card>
+              </>
+            )}
           </div>
+        )}
+
+        {/* Single category or no categories: show monthly spend card standalone */}
+        {categoryTotals.length <= 1 && (
+          <Card className="mb-6 p-4 text-center inline-block">
+            <p className="text-sm text-muted-foreground">Monthly Spend</p>
+            <p className="text-2xl font-bold text-foreground">
+              {symbol}{totalMonthlySpend.toFixed(2)}
+            </p>
+          </Card>
         )}
 
         {/* Active category filter indicator */}
@@ -148,7 +165,7 @@ const Index = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {filteredSubs.map((sub) => (
+              {sortedSubs.map((sub) => (
                 <SubscriptionCard
                   key={sub.id}
                   subscription={sub}

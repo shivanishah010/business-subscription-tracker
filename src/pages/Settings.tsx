@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, ExternalLink, Search } from "lucide-react";
 
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
@@ -236,6 +236,7 @@ const Settings = () => {
   const [searchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Subscription | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (searchParams.get("new") === "true") {
@@ -263,6 +264,12 @@ const Settings = () => {
     setEditing(null);
   };
 
+  const filteredSubs = subscriptions.filter((sub) => {
+    const preset = getPresetLogo(sub.logo);
+    const displayName = preset?.name ?? sub.name;
+    return displayName.toLowerCase().includes(search.toLowerCase());
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
@@ -281,20 +288,30 @@ const Settings = () => {
       <main className="mx-auto max-w-3xl px-4 py-6">
         {!showForm ? (
           <>
-            <Button onClick={() => setShowForm(true)} className="mb-6">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Subscription
-            </Button>
+            <div className="flex items-center gap-3 mb-6">
+              <Button onClick={() => setShowForm(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Subscription
+              </Button>
+              <div className="relative flex-1 max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search subscriptions…"
+                  className="pl-9"
+                />
+              </div>
+            </div>
 
-            {subscriptions.length === 0 ? (
+            {filteredSubs.length === 0 ? (
               <p className="py-12 text-center text-muted-foreground">
-                No subscriptions added yet.
+                {subscriptions.length === 0 ? "No subscriptions added yet." : "No results found."}
               </p>
             ) : (
               <div className="space-y-3">
-                {subscriptions.map((sub) => {
+                {filteredSubs.map((sub) => {
                   const preset = getPresetLogo(sub.logo);
-                  const isCustom = !preset && sub.logo.startsWith("data:");
                   return (
                     <div
                       key={sub.id}
@@ -308,8 +325,6 @@ const Settings = () => {
                           >
                             {preset.initials}
                           </div>
-                        ) : isCustom ? (
-                          <img src={sub.logo} alt={sub.name} className="h-full w-full rounded-lg object-cover" />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted text-sm font-bold text-muted-foreground">
                             {sub.name.charAt(0)}
@@ -325,9 +340,9 @@ const Settings = () => {
                           {getCurrencySymbol(sub.currency)}{sub.cost.toFixed(2)}
                           {sub.billingCycle === "annual" ? "/yr" : "/mo"}
                           {" · "}
-                          <Badge variant="secondary" className={`text-[10px] ${CATEGORY_COLORS[sub.category]}`}>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${CATEGORY_COLORS[sub.category]}`}>
                             {sub.category}
-                          </Badge>
+                          </span>
                         </p>
                       </div>
 
