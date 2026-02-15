@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  // This tells Vite to prefix all file paths with your subfolder name
+  // The 'base' must only be used in production for the subfolder to work
   base: mode === "production" ? "/subscription-tracker/" : "/",
   server: {
     host: "::",
@@ -14,10 +14,14 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  // The 'as any' prevents the 6 TypeScript errors in VS Code
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+  ].filter(Boolean) as any,
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(process.cwd(), "./src"),
     },
   },
 }));
