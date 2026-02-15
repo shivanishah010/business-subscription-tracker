@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useSubscriptions } from "@/hooks/use-subscriptions";
 import { CATEGORIES, CATEGORY_COLORS, type Category, type Subscription } from "@/lib/types";
 import { CURRENCIES, getCurrencySymbol } from "@/lib/currencies";
@@ -226,6 +226,8 @@ const Settings = () => {
     }
   }, [searchParams]);
 
+  const navigate = useNavigate();
+
   const handleSave = (sub: Subscription) => {
     if (editing) {
       updateSubscription(sub);
@@ -234,6 +236,7 @@ const Settings = () => {
     }
     setShowForm(false);
     setEditing(null);
+    navigate("/");
   };
 
   const handleEdit = (sub: Subscription) => {
